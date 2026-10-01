@@ -3,7 +3,6 @@ import 'dart:io';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -1431,6 +1430,9 @@ class _GlassButtonState extends State<_GlassButton> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 250),
           padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+          transform: _isHovered && !isDisabled
+              ? Matrix4.translationValues(0.0, -2.0, 0.0)
+              : Matrix4.identity(),
           decoration: BoxDecoration(
             gradient: isDisabled ? null : widget.gradient,
             color: isDisabled ? Colors.grey.withAlpha(60) : null,
@@ -1457,9 +1459,6 @@ class _GlassButtonState extends State<_GlassButton> {
                         spreadRadius: _isHovered ? 2 : 0,
                       ),
                   ],
-            transform: _isHovered && !isDisabled
-                ? (Matrix4.identity()..translate(0.0, -2.0))
-                : Matrix4.identity(),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -1640,13 +1639,13 @@ class _PresetChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final presets = [
-      _Preset('+10s', const Duration(seconds: 10)),
-      _Preset('+1m', const Duration(minutes: 1)),
-      _Preset('+5m', const Duration(minutes: 5)),
-      _Preset('+10m', const Duration(minutes: 10)),
-      _Preset('+30m', const Duration(minutes: 30)),
-      _Preset('+1h', const Duration(hours: 1)),
+    const presets = [
+      _Preset('+10s', Duration(seconds: 10)),
+      _Preset('+1m', Duration(minutes: 1)),
+      _Preset('+5m', Duration(minutes: 5)),
+      _Preset('+10m', Duration(minutes: 10)),
+      _Preset('+30m', Duration(minutes: 30)),
+      _Preset('+1h', Duration(hours: 1)),
     ];
 
     return Wrap(
