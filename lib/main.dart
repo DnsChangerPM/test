@@ -623,19 +623,27 @@ class _TimerPageState extends State<TimerPage> {
   }) {
     return SizedBox(
       width: 120,
-      child: DropdownButtonFormField<int>(
-        decoration: InputDecoration(labelText: label),
-        value: value,
-        isExpanded: true,
-        items: items
-            .map(
-              (e) => DropdownMenuItem<int>(
-                value: e,
-                child: Text(e.toString().padLeft(2, '0')),
-              ),
-            )
-            .toList(),
-        onChanged: enabled ? onChanged : null,
+      child: InputDecorator(
+        decoration: InputDecoration(
+          labelText: label,
+          enabled: enabled,
+        ),
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<int>(
+            value: value,
+            isExpanded: true,
+            icon: const Icon(Icons.arrow_drop_down),
+            items: items
+                .map(
+                  (e) => DropdownMenuItem<int>(
+                    value: e,
+                    child: Text(e.toString().padLeft(2, '0')),
+                  ),
+                )
+                .toList(),
+            onChanged: enabled ? onChanged : null,
+          ),
+        ),
       ),
     );
   }
