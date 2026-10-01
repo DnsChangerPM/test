@@ -67,6 +67,13 @@ jobs:
       - name: Enable Windows desktop
         run: flutter config --enable-windows-desktop
 
+      - name: Add Windows platform
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "windows")) {
+            flutter create --platforms=windows --project-name advanced_timer .
+          }
+
       - name: Install dependencies
         run: flutter pub get
 
