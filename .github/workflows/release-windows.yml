@@ -4,7 +4,14 @@ on:
   push:
     tags:
       - 'v*'
+
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'App version (e.g. 1.0.0 or v1.0.0)'
+        required: true
+        type: string
+        default: '1.0.0'
 
 permissions:
   contents: write
@@ -16,6 +23,40 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Resolve version
+        id: version
+        shell: pwsh
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+          INPUT_VERSION: ${{ github.event.inputs.version }}
+        run: |
+          if ($env:EVENT_NAME -eq 'workflow_dispatch') {
+            $raw = $env:INPUT_VERSION
+          }
+          elseif ($env:REF_TYPE -eq 'tag') {
+            $raw = $env:REF_NAME
+          }
+          else {
+            throw 'Unsupported event.'
+          }
+
+          $version = ($raw -replace '^v', '').Trim()
+
+          if ([string]::IsNullOrWhiteSpace($version)) {
+            throw 'Version is empty.'
+          }
+
+          if ($version -notmatch '^[0-9A-Za-z\.\-]+$') {
+            throw 'Version contains invalid characters. Use something like 1.0.0 or 1.2.3-beta.'
+          }
+
+          $tag = "v$version"
+
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "tag=$tag" >> $env:GITHUB_OUTPUT
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -38,43 +79,39 @@ jobs:
       - name: Build Windows release
         run: flutter build windows --release
 
-      - name: Resolve version
-        id: version
-        shell: pwsh
-        run: |
-          $version = "1.0.0-dev"
-          if ("${{ github.ref_type }}" -eq "tag") {
-            $version = "${{ github.ref_name }}" -replace '^v',''
-          }
-          "version=$version" >> $env:GITHUB_OUTPUT
-
       - name: Install Inno Setup
         run: choco install innosetup --no-progress -y
 
       - name: Compile installer
         shell: pwsh
+        env:
+          APP_VERSION: ${{ steps.version.outputs.version }}
         run: |
-          $version = "${{ steps.version.outputs.version }}"
           $candidates = @(
             "C:\Program Files (x86)\Inno Setup 6\ISCC.exe",
             "C:\Program Files\Inno Setup 6\ISCC.exe"
           )
+
           $iscc = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
-          if (-not $iscc) { throw "ISCC.exe not found" }
-          & $iscc "/DMyAppVersion=$version" installer.iss
+
+          if (-not $iscc) {
+            throw "ISCC.exe not found"
+          }
+
+          & $iscc "/DMyAppVersion=$env:APP_VERSION" installer.iss
 
       - name: Upload installer artifact
         uses: actions/upload-artifact@v4
         with:
-          name: windows-installer
+          name: windows-installer-${{ steps.version.outputs.version }}
           path: Output/*.exe
 
       - name: Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_name }}
-          name: Release ${{ github.ref_name }}
+          tag_name: ${{ steps.version.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          name: Release ${{ steps.version.outputs.tag }}
           draft: false
           prerelease: false
           files: |
