@@ -6,7 +6,7 @@
 #endif
 
 [Setup]
-AppId={{8C1F1C6B-5A6A-4D0F-9F0C-7C5F9B3A2D1E}
+AppId={{8C1F1C6B-5A6A-4D0F-9F0C-7C5F9B3A2D1E}}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher=Your Company
@@ -27,6 +27,8 @@ RestartApplications=no
 UninstallDisplayIcon={app}\{#MyAppExeName}
 UninstallDisplayName={#MyAppName}
 SetupLogging=yes
+
+[Languages]
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
