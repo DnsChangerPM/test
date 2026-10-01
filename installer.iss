@@ -1,8 +1,8 @@
-#define MyAppName "Advanced Timer"
+#define MyAppName "Advanced Timer Pro"
 #define MyAppExeName "advanced_timer.exe"
 
 #ifndef MyAppVersion
-#define MyAppVersion "1.0.0"
+#define MyAppVersion "1.1.0"
 #endif
 
 [Setup]
@@ -15,7 +15,7 @@ DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 OutputDir=Output
-OutputBaseFilename=AdvancedTimer-Setup-{#MyAppVersion}
+OutputBaseFilename=AdvancedTimer-Pro-Setup-{#MyAppVersion}
 Compression=lzma2/max
 SolidCompression=yes
 WizardStyle=modern
@@ -27,20 +27,23 @@ RestartApplications=no
 UninstallDisplayIcon={app}\{#MyAppExeName}
 UninstallDisplayName={#MyAppName}
 SetupLogging=yes
-
-[Languages]
+DisableWelcomePage=no
+DisableReadyPage=yes
+DisableFinishedPage=no
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
+Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
 Source: "build\windows\x64\runner\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
+Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
 [Run]
@@ -59,7 +62,9 @@ begin
   begin
     RemoveDirectoryIfExists(ExpandConstant('{userappdata}\AdvancedTimer'));
     RemoveDirectoryIfExists(ExpandConstant('{userappdata}\advanced_timer'));
+    RemoveDirectoryIfExists(ExpandConstant('{userappdata}\AdvancedTimerPro'));
     RemoveDirectoryIfExists(ExpandConstant('{localappdata}\AdvancedTimer'));
     RemoveDirectoryIfExists(ExpandConstant('{localappdata}\advanced_timer'));
+    RemoveDirectoryIfExists(ExpandConstant('{localappdata}\AdvancedTimerPro'));
   end;
 end;
